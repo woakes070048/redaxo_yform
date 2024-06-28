@@ -1,11 +1,24 @@
 
 $(document).on('rex:ready',function() {
 
+    let counter = 0;
     $(".yform-dataset-widget").each(function () {
-        let id = this.dataset.id;
+        counter++;
+
+        let field_name = this.dataset.field_name;
         let link = this.dataset.link;
         let widget_type = this.dataset.widget_type;
-        let field_name = this.dataset.field_name;
+
+        let id = Date.now() + counter;
+        this.dataset.id = id;
+
+        $(this).find(".yform-dataset-view").each(function () {
+            this.id = 'yform-dataset-view-' + id;
+        });
+
+        $(this).find(".yform-dataset-real").each(function () {
+            this.id = 'yform-dataset-real-' + id;
+        });
 
         $(this).find("a").each(function () {
 
@@ -21,7 +34,7 @@ $(document).on('rex:ready',function() {
                 };
             }
 
-            // open
+            // open / add
             if (this.classList.contains('yform-dataset-widget-open')) {
                 this.onclick = function () {
                     let newWindowLink = link + '&rex_yform_manager_opener[id]='+id+'&rex_yform_manager_opener[field]='+field_name+'&rex_yform_manager_opener[multiple]='+multiple;
@@ -152,21 +165,26 @@ $(document).on('rex:ready',function() {
                             id: id,
                             value: value,
                             multiple: multiple
-                          }
+                        }
                     })
                     opener.dispatchEvent(event)
                     if (!event?.defaultPrevented) {
-                        self.close()
+                        if (multiple !== "1") {
+                            self.close()
+                        }
                     }
 
                     /** deprecated jQuery implementation – use native implementation above */
                     var event = opener.jQuery.Event('rex:YForm_selectData')
                     opener.jQuery(window).trigger(event, [id, value, multiple])
+
                     if (!event.isDefaultPrevented()) {
-                        self.close()
+                        if (multiple !== "1") {
+                            self.close()
+                        }
                     }
-                    
-                    if(multiple == "1") {
+
+                    if(multiple === "1") {
                         let viewObject = opener.document.getElementById('yform-dataset-view-'+opener_id);
                         let option = opener.document.createElement("OPTION");
                         option.text = value;
